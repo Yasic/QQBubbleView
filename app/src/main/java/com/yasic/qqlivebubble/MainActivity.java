@@ -11,10 +11,6 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import rx.Observable;
-import rx.functions.Action1;
 
 public class MainActivity extends AppCompatActivity {
     private BubbleView bubbleView;
@@ -49,16 +45,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (flag == 0){
-                    flag = 1;
-                    Observable.timer(0, 200, TimeUnit.MILLISECONDS)
-                            .subscribe(new Action1<Long>() {
-                                @Override
-                                public void call(Long aLong) {
-                                    bubbleView.startAnimation(bubbleView.getWidth(), bubbleView.getHeight());
-                                }
-                            });
-                }
+                bubbleView.startAnimation(bubbleView.getWidth(), bubbleView.getHeight(), 200, 5);
             }
         });
     }

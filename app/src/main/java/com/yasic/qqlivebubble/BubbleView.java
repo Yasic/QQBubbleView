@@ -13,12 +13,11 @@ import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Yasic on 2016/6/1.
@@ -79,22 +78,16 @@ public class BubbleView extends RelativeLayout{
         imageView.setY(positionY);
     }
 
-    public void startAnimation(final int rankWidth, final int rankHeight){
-        Observable.create(new Observable.OnSubscribe<Integer>() {
-            @Override
-            public void call(Subscriber<? super Integer> subscriber) {
-                subscriber.onNext(1);
-                subscriber.onCompleted();
-            }
-        })
-                .subscribeOn(Schedulers.newThread())
+    public void startAnimation(final int rankWidth, final int rankHeight, int delay, int count){
+        Observable.timer(delay, TimeUnit.MILLISECONDS)
+                .repeat(count)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Integer>() {
-                @Override
-                public void call(Integer integer) {
-                    bubbleAnimation(rankWidth, rankHeight);
-                }
-            });
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        bubbleAnimation(rankWidth, rankHeight);
+                    }
+                });
     }
 
     private void bubbleAnimation(int rankWidth, int rankHeight){
