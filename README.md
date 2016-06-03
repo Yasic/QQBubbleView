@@ -8,32 +8,75 @@
 
 ![](http://diycode.b0.upaiyun.com/photo/2016/55b80c4c270e41e429c468973f215cc7.gif)
 
-## Feature
-
-* 支持自定义itemview的样式、大小、位置
-
-* 支持动画时间设置
-
-* 支持直接添加view到xml文件
-
-* 支持自定义view的活动区域
-
 ## Usage
 
-```
-allprojects {
-    repositories {
-        jcenter()
-        maven {
-            url 'https://dl.bintray.com/yasic/maven/'
-        }
-    }
-}
+* 引入依赖
 
-compile 'yasic.library.BubbleView:bubbleview:0.0.3'
+```
+compile 'yasic.library.BubbleView:bubbleview:0.0.4'
 ```
 
+* 启动动画
 
+```
+void startAnimation(final int rankWidth, final int rankHeight)
+void startAnimation(final int rankWidth, final int rankHeight, int count)
+void startAnimation(final int rankWidth, final int rankHeight, int delay, int count)
+```
+
+* 使用默认图片样式
+
+```
+BubbleView setDefaultDrawableList()
+```
+
+* 自定义图片样式
+
+```
+BubbleView setDrawableList(drawableList)
+```
+
+* 设置上升动画持续时间
+
+```
+BubbleView setRiseDuration(int riseDuration)
+```
+
+* 设置初始点相对于底边边距
+
+```
+BubbleView setBottomPadding(int px)
+```
+
+* 设置三个随机初始点的间距
+
+```
+BubbleView setOriginsOffset(int px)
+```
+
+* 设置缩放动画最大最小比例
+```
+BubbleView setScaleAnimation(float maxScale, float minScale)
+```
+
+* 设置两个上升动画之间的时间间隔
+
+```
+BubbleView setAnimationDelay(int delay)
+```
+
+* 设置图片数目最大最小值
+
+```
+void setMaxHeartNum(int maxHeartNum)
+void setMinHeartNum(int minHeartNum)
+```
+
+* 设置每一个view的宽高
+
+```
+BubbleView setItemViewWH(int viewWidth, int viewHeight)
+```
 
 ## Point
 
@@ -48,7 +91,3 @@ compile 'yasic.library.BubbleView:bubbleview:0.0.3'
 
 * 强烈推荐一个模拟贝塞尔曲线的网站，可以在线模拟出想要的曲线http://myst729.github.io/bezier-curve/
 
-* 利用AnimatorSet组合动画效果
-
-## API
-正在设计中，近期会上传到 Maven 仓库服务器，并展示API详细内容
