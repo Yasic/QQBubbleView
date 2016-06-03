@@ -18,6 +18,23 @@
 
 * 支持自定义view的活动区域
 
+## Usage
+
+```
+allprojects {
+    repositories {
+        jcenter()
+        maven {
+            url 'https://dl.bintray.com/yasic/maven/'
+        }
+    }
+}
+
+compile 'yasic.library.BubbleView:bubbleview:0.0.3'
+```
+
+
+
 ## Point
 
 * 继承自Relativelayout
