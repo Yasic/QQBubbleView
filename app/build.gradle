@@ -1,8 +1,10 @@
 apply plugin: 'com.android.application'
 
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
+    resourcePrefix "kk_"
 
     defaultConfig {
         applicationId "com.yasic.qqlivebubble"
@@ -26,3 +28,4 @@ dependencies {
     compile 'com.android.support:design:23.3.0'
     compile 'io.reactivex:rxandroid:1.1.0'
 }
+
