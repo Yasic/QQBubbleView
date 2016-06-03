@@ -1,10 +1,11 @@
 package com.yasic.qqlivebubble;
 
+import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -25,7 +26,7 @@ import rx.functions.Action1;
 public class BubbleView extends RelativeLayout{
     private List<Drawable> drawableList = new ArrayList<>();
 
-    private int parentWidth = -1, parentHeight = -1;
+    //private int parentWidth = -1, parentHeight = -1;
     private int viewWidth = 64, viewHeight = 64;
 
     private int maxHeartNum = 8;
@@ -53,29 +54,34 @@ public class BubbleView extends RelativeLayout{
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
-    public void setDrawableList(List<Drawable> drawableList){
+    public BubbleView setDrawableList(List<Drawable> drawableList){
         this.drawableList = drawableList;
+        return this;
     }
 
-    public void setRiseDuration(int riseDuration){
+    public BubbleView setRiseDuration(int riseDuration){
         this.riseDuration = riseDuration;
+        return this;
     }
 
-    public void setBottomPadding(int dp){
+    public BubbleView setBottomPadding(int dp){
         this.bottomPadding = dp2pix(dp);
+        return this;
     }
 
-    public void setOriginMargin(int dp){
+    public BubbleView setOriginMargin(int dp){
         this.originMargin = dp2pix(dp);
+        return this;
     }
 
-    public void setGiftBoxImaeg(Drawable drawable, int positionX, int positionY){
+    public BubbleView setGiftBoxImaeg(Drawable drawable, int positionX, int positionY){
         ImageView imageView = new ImageView(getContext());
         imageView.setImageDrawable(drawable);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imageView.getWidth(), imageView.getHeight());
         this.addView(imageView, layoutParams);
         imageView.setX(positionX);
         imageView.setY(positionY);
+        return this;
     }
 
     public void startAnimation(final int rankWidth, final int rankHeight, int delay, int count){
@@ -91,19 +97,17 @@ public class BubbleView extends RelativeLayout{
     }
 
     private void bubbleAnimation(int rankWidth, int rankHeight){
-        this.parentWidth = rankWidth;
-        this.parentHeight = rankHeight;
-        parentHeight -= bottomPadding;
+        rankHeight -= bottomPadding;
         int seed = (int)(Math.random() * 3);
         switch (seed){
             case 0:
-                parentWidth -= originMargin;
+                rankWidth -= originMargin;
                 break;
             case 1:
-                parentWidth += originMargin;
+                rankWidth += originMargin;
                 break;
             case 2:
-                parentHeight -= originMargin;
+                rankHeight -= originMargin;
                 break;
         }
 
@@ -116,36 +120,94 @@ public class BubbleView extends RelativeLayout{
 
         ObjectAnimator riseAlphaAnimator = ObjectAnimator.ofFloat(tempImageView, "alpha", 1.0f, 0.0f);
         riseAlphaAnimator.setDuration(riseDuration);
-        ValueAnimator valueAnimator = getBesselAnimator(tempImageView, parentWidth, parentHeight);
+
+        ObjectAnimator riseScaleXAnimator = ObjectAnimator.ofFloat(tempImageView, "scaleX", 0.3f, 1.2f);
+        riseScaleXAnimator.setDuration(riseDuration);
+
+        ObjectAnimator riseScaleYAnimator = ObjectAnimator.ofFloat(tempImageView, "scaleY", 0.3f, 1.2f);
+        riseScaleYAnimator.setDuration(riseDuration);
+
+        ValueAnimator valueAnimator = getBesselAnimator(tempImageView, rankWidth, rankHeight);
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.play(valueAnimator).with(riseAlphaAnimator);
+        animatorSet.play(valueAnimator).with(riseAlphaAnimator).with(riseScaleXAnimator).with(riseScaleYAnimator);
         animatorSet.start();
     }
 
-    private ValueAnimator getBesselAnimator(final ImageView imageView, int parentWidth, int parentHeight){
-        final PointF pointF0 = new PointF(parentWidth/2, parentHeight);
-        PointF pointF1 = new PointF();
-        pointF1.x = (float) ((double)(parentWidth) * (0.10)) + (float) (Math.random() * (float)(parentWidth) * (0.8));
-        pointF1.y = (float) (parentHeight - Math.random() * parentHeight * (0.5));
-        PointF pointF2 = new PointF();
-        pointF2.x = (float) (Math.random() * parentWidth);
-        pointF2.y = (float) (Math.random() * parentHeight * (0.5));
-        PointF pointF3 = new PointF();
-        pointF3.x = (float) (Math.random() * parentWidth);
-        pointF3.y = 0;
+    private ValueAnimator getBesselAnimator(final ImageView imageView, int rankWidth, int rankHeight){
+        float point0[] = new float[2];
+        point0[0] = rankWidth/2;
+        point0[1] = rankHeight;
 
-        BesselEvaluator besselEvaluator = new BesselEvaluator(pointF1, pointF2);
-        ValueAnimator valueAnimator = ValueAnimator.ofObject(besselEvaluator, pointF0, pointF3);
+        float point1[] = new float[2];
+        point1[0] = (float) ((rankWidth) * (0.10)) + (float) (Math.random() * (rankWidth) * (0.8));
+        point1[1] = (float) (rankHeight - Math.random() * rankHeight * (0.5));
+
+        float point2[] = new float[2];
+        point2[0] = (float) (Math.random() * rankWidth);
+        point2[1] = (float) (Math.random() * (rankHeight - point1[1]));
+
+        float point3[] = new float[2];
+        point3[0] = (float) (Math.random() * rankWidth);
+        point3[1] = 0;
+
+        BesselEvaluator besselEvaluator = new BesselEvaluator(point1, point2);
+        ValueAnimator valueAnimator = ValueAnimator.ofObject(besselEvaluator, point0, point3);
         valueAnimator.setDuration(riseDuration);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                PointF value = (PointF)animation.getAnimatedValue();
-                imageView.setTranslationX(value.x);
-                imageView.setTranslationY(value.y);
+                float[] currentPosition = new float[2];
+                currentPosition = (float[]) animation.getAnimatedValue();
+                imageView.setTranslationX(currentPosition[0]);
+                imageView.setTranslationY(currentPosition[1]);
+            }
+        });
+        valueAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                removeView(imageView);
+                imageView.setImageDrawable(null);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
             }
         });
         return valueAnimator;
+    }
+
+    public class BesselEvaluator implements TypeEvaluator<float[]> {
+        private float point1[] = new float[2], point2[] = new float[2];
+
+        public BesselEvaluator(float[] point1, float[] point2){
+            this.point1 = point1;
+            this.point2 = point2;
+        }
+
+        @Override
+        public float[] evaluate(float fraction, float[] point0, float[] point3) {
+            float[] currentPosition = new float[2];
+            currentPosition[0] = point0[0] * (1 - fraction) * (1 - fraction) * (1 - fraction)
+                    + point1[0] * 3 * fraction * (1 - fraction) * (1 - fraction)
+                    + point2[0] * 3 * (1 - fraction) * fraction * fraction
+                    + point3[0] * fraction * fraction * fraction;
+            currentPosition[1] = point0[1] * (1 - fraction) * (1 - fraction) * (1 - fraction)
+                    + point1[1] * 3 * fraction * (1 - fraction) * (1 - fraction)
+                    + point2[1] * 3 * (1 - fraction) * fraction * fraction
+                    + point3[1] * fraction * fraction * fraction;
+            return currentPosition;
+        }
     }
 
     private int dp2pix(int dp){
