@@ -24,7 +24,12 @@
 
 * 使用三阶贝塞尔曲线模拟运动路径，三阶贝塞尔曲线公式如下
 
+
 ![](http://img.my.csdn.net/uploads/201008/28/0_1282984326C3m1.gif)
+
+* 参考博客http://www.html-js.com/article/1628
+
+* 强烈推荐一个模拟贝塞尔曲线的网站，可以在线模拟出想要的曲线http://myst729.github.io/bezier-curve/
 
 * 利用AnimatorSet组合动画效果
 
