@@ -26,8 +26,7 @@ import rx.functions.Action1;
 public class BubbleView extends RelativeLayout{
     private List<Drawable> drawableList = new ArrayList<>();
 
-    //private int parentWidth = -1, parentHeight = -1;
-    private int viewWidth = 64, viewHeight = 64;
+    private int viewWidth = dp2pix(16), viewHeight = dp2pix(16);
 
     private int maxHeartNum = 8;
     private int minHeartNum = 2;
@@ -35,7 +34,12 @@ public class BubbleView extends RelativeLayout{
     private int riseDuration = 4000;
 
     private int bottomPadding = 200;
-    private int originMargin = 60;
+    private int originsOffset = 60;
+
+    private float maxScale = 1.0f;
+    private float minScale = 1.0f;
+
+    private int innerDelay = 200;
 
     public BubbleView(Context context) {
         super(context);
@@ -49,11 +53,6 @@ public class BubbleView extends RelativeLayout{
         super(context, attrs, defStyleAttr);
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
-
     public BubbleView setDrawableList(List<Drawable> drawableList){
         this.drawableList = drawableList;
         return this;
@@ -64,13 +63,38 @@ public class BubbleView extends RelativeLayout{
         return this;
     }
 
-    public BubbleView setBottomPadding(int dp){
-        this.bottomPadding = dp2pix(dp);
+    public BubbleView setBottomPadding(int px){
+        this.bottomPadding = px;
         return this;
     }
 
-    public BubbleView setOriginMargin(int dp){
-        this.originMargin = dp2pix(dp);
+    public BubbleView setOriginsOffset(int px){
+        this.originsOffset = px;
+        return this;
+    }
+
+    public BubbleView setScaleAnimation(float maxScale, float minScale) {
+        this.maxScale = maxScale;
+        this.minScale = minScale;
+        return this;
+    }
+
+    public BubbleView setAnimationDelay(int delay){
+        this.innerDelay = delay;
+        return this;
+    }
+
+    public void setMaxHeartNum(int maxHeartNum){
+        this.maxHeartNum = maxHeartNum;
+    }
+
+    public void setMinHeartNum(int minHeartNum){
+        this.minHeartNum = minHeartNum;
+    }
+
+    public BubbleView setItemViewWH(int viewWidth, int viewHeight){
+        this.viewHeight = viewHeight;
+        this.viewWidth = viewWidth;
         return this;
     }
 
@@ -82,6 +106,30 @@ public class BubbleView extends RelativeLayout{
         imageView.setX(positionX);
         imageView.setY(positionY);
         return this;
+    }
+
+    public void startAnimation(final int rankWidth, final int rankHeight){
+        Observable.timer(innerDelay, TimeUnit.MILLISECONDS)
+                .repeat((int)(Math.random() * (maxHeartNum - minHeartNum)) + minHeartNum)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        bubbleAnimation(rankWidth, rankHeight);
+                    }
+                });
+    }
+
+    public void startAnimation(final int rankWidth, final int rankHeight, int count){
+        Observable.timer(innerDelay, TimeUnit.MILLISECONDS)
+                .repeat(count)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        bubbleAnimation(rankWidth, rankHeight);
+                    }
+                });
     }
 
     public void startAnimation(final int rankWidth, final int rankHeight, int delay, int count){
@@ -101,13 +149,13 @@ public class BubbleView extends RelativeLayout{
         int seed = (int)(Math.random() * 3);
         switch (seed){
             case 0:
-                rankWidth -= originMargin;
+                rankWidth -= originsOffset;
                 break;
             case 1:
-                rankWidth += originMargin;
+                rankWidth += originsOffset;
                 break;
             case 2:
-                rankHeight -= originMargin;
+                rankHeight -= originsOffset;
                 break;
         }
 
@@ -121,10 +169,10 @@ public class BubbleView extends RelativeLayout{
         ObjectAnimator riseAlphaAnimator = ObjectAnimator.ofFloat(tempImageView, "alpha", 1.0f, 0.0f);
         riseAlphaAnimator.setDuration(riseDuration);
 
-        ObjectAnimator riseScaleXAnimator = ObjectAnimator.ofFloat(tempImageView, "scaleX", 0.3f, 1.2f);
+        ObjectAnimator riseScaleXAnimator = ObjectAnimator.ofFloat(tempImageView, "scaleX", minScale, maxScale);
         riseScaleXAnimator.setDuration(riseDuration);
 
-        ObjectAnimator riseScaleYAnimator = ObjectAnimator.ofFloat(tempImageView, "scaleY", 0.3f, 1.2f);
+        ObjectAnimator riseScaleYAnimator = ObjectAnimator.ofFloat(tempImageView, "scaleY", minScale, maxScale);
         riseScaleYAnimator.setDuration(riseDuration);
 
         ValueAnimator valueAnimator = getBesselAnimator(tempImageView, rankWidth, rankHeight);

@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                bubbleView.startAnimation(bubbleView.getWidth(), bubbleView.getHeight(), 200, 5);
+                bubbleView.startAnimation(bubbleView.getWidth(), bubbleView.getHeight());
             }
         });
     }
